@@ -1,0 +1,38 @@
+name: Run Telegram Userbot
+
+# Sirf manual start: GitHub > Actions > "Run Telegram Userbot" > Run workflow
+# (koi schedule/cron nahi hai, isliye 6 ghante baad apne aap dobara start nahi hoga)
+on:
+  workflow_dispatch:
+
+# Ek hi session do jagah ek saath na chale
+concurrency:
+  group: telegram-userbot
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360   # GitHub ki max limit 6 ghante
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Start bot
+        env:
+          API_ID: ${{ secrets.API_ID }}
+          API_HASH: ${{ secrets.API_HASH }}
+          SESSION_STRING: ${{ secrets.SESSION_STRING }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          TARGET: ${{ vars.TARGET }}
+          DELAY: ${{ vars.DELAY }}
+          START_NUMBER: ${{ vars.START_NUMBER }}
+          NO_THUMB_MODE: ${{ vars.NO_THUMB_MODE }}
+        run: python userbot.py
